@@ -136,7 +136,9 @@
       text-align: center;
       color: var(--text);
     }
-    .word-en.hidden { opacity: 0; }
+    /* hidden answer: invisible AND untouchable — otherwise its segments still
+       catch taps (ghost tooltips in E→V before reveal) instead of the card */
+    .word-en.hidden { opacity: 0; pointer-events: none; }
 
     .seg { cursor: default; }
     .seg:hover {
