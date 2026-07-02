@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Vietnamese</title>
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 3 2'><rect width='3' height='2' fill='%23DA251D'/><polygon fill='%23FFFF00' points='1.5,0.38 1.672,0.918 2.243,0.918 1.786,1.246 1.957,1.784 1.5,1.456 1.043,1.784 1.214,1.246 0.757,0.918 1.328,0.918'/></svg>">
   <link rel="manifest" href="manifest.webmanifest">
@@ -354,6 +354,7 @@
 
     .wl-header {
       display: flex;
+      flex-wrap: wrap;
       align-items: center;
       gap: 8px;
       padding: 14px 20px;
@@ -540,45 +541,50 @@
     .wl-col-hdr:hover { color: var(--text); }
     .wl-col-hdr.primary { color: var(--text); }
 
-    /* ── import/export row (visible buttons — no keyboard on mobile) ── */
-    .nav-sub {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      width: 840px;
-    }
-    .nav-sub .nav-btn { height: 36px; font-size: 12px; padding: 0 16px; }
-
-    /* ── mobile layout ── */
+    /* ── mobile layout ──
+       Phone status bar / gesture bar cover the screen edges, so pad with
+       safe-area insets and anchor content to the top (a centered flex body
+       clips BOTH ends when content overflows). Exactly two rows above the
+       card and two below it, plus the battery strip. */
     @media (max-width: 700px) {
-      body { padding: 10px 10px 20px; overflow-y: auto; }
-      .stage { flex-direction: column; width: 100%; gap: 10px; }
+      body {
+        padding: calc(14px + env(safe-area-inset-top, 0px)) 10px calc(28px + env(safe-area-inset-bottom, 0px));
+        justify-content: flex-start;
+        overflow-y: auto;
+      }
+      .stage { flex-direction: column; width: 100%; gap: 8px; }
       .card-col { display: contents; }   /* let stage order card-col children directly */
-      .top-row { order: 1; width: 100%; flex-wrap: wrap; justify-content: center; gap: 8px; margin-bottom: 0; }
-      .top-box { height: 40px; padding: 0 12px; }
-      .seg-seg { height: 40px; padding: 0 12px; font-size: 12px; }
-      .card { order: 2; width: 100%; height: min(52dvh, 430px); border-radius: 16px; }
-      .card-top, .card-bot { padding: 16px 14px; }
+      /* top row 1: [slider | counter]   top row 2: [N/C/S | Formal/Informal] */
+      .top-row { order: 1; width: 100%; flex-wrap: wrap; justify-content: center; gap: 6px; margin-bottom: 0; }
+      .top-box { height: 38px; padding: 0 10px; }
+      .top-row > .top-box:first-child { flex: 1 1 auto; justify-content: center; }
+      .top-row .seg-ctrl { flex: 1 1 42%; display: flex; }
+      .top-row .seg-seg { flex: 1; justify-content: center; min-width: 0; }
+      .seg-seg { height: 38px; padding: 0 6px; font-size: 11px; }
+      /* card gets whatever height the fixed rows leave over */
+      .card { order: 2; width: 100%; height: clamp(220px, calc(100dvh - 350px), 430px); border-radius: 16px; }
+      .card-top, .card-bot { padding: 14px 12px; }
       .word { font-size: 40px; }
       /* battery: vertical side column → horizontal strip under the card */
       .battery-col { order: 3; width: 100%; flex-direction: row; justify-content: center; gap: 12px; }
       .battery { flex-direction: row-reverse; align-items: center; flex: 1; max-width: 320px; }
       .bat-cap { width: 7px; height: 20px; border-radius: 0 3px 3px 0; margin: 0 0 0 3px; }
       .bat-body { flex-direction: row-reverse; width: 100%; padding: 3px; gap: 3px; }
-      .bat-cell { height: 30px; flex: 1; }
-      .nav { order: 4; width: 100%; display: flex; flex-direction: column; gap: 8px; }
-      .nav-center { order: -1; gap: 8px; }
-      .nav-center .nav-btn.arrow { flex: 1; width: auto; height: 48px; }
+      .bat-cell { height: 28px; flex: 1; }
+      /* bottom row 1: [◀ | shuffle | ▶]   bottom row 2: [Classifier | V→E | View All Words] */
+      .nav { order: 4; width: 100%; display: flex; flex-wrap: wrap; gap: 8px; }
+      .nav-center { order: -1; flex-basis: 100%; gap: 8px; }
+      .nav-center .nav-btn.arrow { flex: 1; width: auto; height: 46px; }
+      .nav-left { flex: 1; }
+      .nav-right { flex: 2; }
       .nav-left .nav-btn, .nav-right .nav-btn { flex: 1; }
-      .nav-btn.side { height: 40px; font-size: 12px; padding: 0 8px; }
-      .nav-sub { order: 5; width: 100%; }
-      .nav-sub .nav-btn { flex: 1; height: 40px; }
-      /* word list overlay: full screen */
+      .nav-btn.side { height: 42px; font-size: 12px; padding: 0 6px; }
+      /* word list overlay: full screen (Import/Export live in its header) */
       .wl-panel { width: 100vw; height: 100dvh; max-height: none; border-radius: 0; }
-      .wl-header { flex-wrap: wrap; gap: 6px; padding: 10px 12px; }
+      .wl-header { gap: 6px; padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px; }
       .wl-col-headers, .word-row { grid-template-columns: 1fr 1fr auto 24px auto; }
       .wl-col-headers { padding: 6px 12px 4px; }
-      .wl-content { padding: 4px 12px 16px; }
+      .wl-content { padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
       .word-row-viet, .word-row-en { font-size: 15px; }
     }
   </style>
@@ -639,11 +645,6 @@
         <button class="nav-btn side" onclick="showWordList()">View All Words</button>
       </div>
     </div>
-
-    <div class="nav-sub">
-      <button class="nav-btn side" onclick="exportBackup()" title="Export scores as CSV (key: E)">Export</button>
-      <button class="nav-btn side" onclick="importBackup()" title="Import scores from CSV (key: I)">Import</button>
-    </div>
   </div>
 
   <div class="battery-col">
@@ -672,6 +673,8 @@
       </div>
       <button class="wl-cls-btn" id="wlDirBtn" onclick="toggleDirection()" style="margin-left:auto">V &#8594; E</button>
       <button class="wl-cls-btn" id="wlClsBtn" onclick="toggleClassifiersFromList()" style="margin-left:0">Classifier Off</button>
+      <button class="wl-cls-btn" onclick="exportBackup()" title="Export scores as CSV (key: E)">Export</button>
+      <button class="wl-cls-btn" onclick="importBackup()" title="Import scores from CSV (key: I)">Import</button>
       <button class="close-wl-btn" onclick="hideWordList()">&#x2715;</button>
     </div>
 
