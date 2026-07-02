@@ -387,7 +387,7 @@
       color: var(--text-dim);
       font-size: 12px;
       font-family: 'Be Vietnam Pro', sans-serif;
-      padding: 5px 12px;
+      padding: 5px 10px;
       cursor: pointer;
       white-space: nowrap;
     }
@@ -426,7 +426,7 @@
     /* column headers */
     .wl-col-headers {
       display: grid;
-      grid-template-columns: 1fr 1fr auto 28px auto;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 28px auto;
       gap: 8px;
       padding: 8px 20px 6px;
       font-size: 10px;
@@ -439,7 +439,7 @@
     .wl-col-score { text-align: center; }
 
     /* word list */
-    .wl-content { overflow-y: auto; flex: 1; padding: 6px 20px 20px; }
+    .wl-content { overflow-y: auto; overflow-x: hidden; flex: 1; padding: 6px 20px 20px; }
     .wl-content::-webkit-scrollbar { width: 5px; }
     .wl-content::-webkit-scrollbar-track { background: transparent; }
     .wl-content::-webkit-scrollbar-thumb { background: rgba(91,168,224,0.2); border-radius: 3px; }
@@ -447,7 +447,7 @@
 
     .word-row {
       display: grid;
-      grid-template-columns: 1fr 1fr auto 28px auto;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 28px auto;
       align-items: center;
       gap: 8px;
       padding: 6px 0 6px 4px;
@@ -456,8 +456,8 @@
       border-radius: 4px;
     }
     .word-row:hover { background: rgba(255,255,255,0.02); }
-    .word-row-viet  { font-size: 18px; font-weight: 400; }
-    .word-row-en    { font-size: 18px; font-weight: 400; color: var(--text); }
+    .word-row-viet  { font-size: 18px; font-weight: 400; min-width: 0; overflow-wrap: break-word; }
+    .word-row-en    { font-size: 18px; font-weight: 400; color: var(--text); min-width: 0; overflow-wrap: break-word; }
 
     /* ── horizontal mini-battery ── */
     .mini-bat-h { display: flex; align-items: center; }
@@ -525,7 +525,7 @@
     .seg-seg:last-child  { border-radius: 0 11px 11px 0; }
     .seg-ctrl .seg-seg:only-child { border-radius: 11px; }
     .seg-seg.active { box-shadow: inset 0 0 0 1.5px var(--blue); color: var(--text); }
-    .seg-ctrl-sm .seg-seg { height: 28px; padding: 0 10px; font-size: 12px; }
+    .seg-ctrl-sm .seg-seg { height: 28px; padding: 0 8px; font-size: 12px; }
     .seg-dot {
       width: 5px; height: 5px;
       border-radius: 50%;
@@ -579,13 +579,17 @@
       .nav-right { flex: 2; }
       .nav-left .nav-btn, .nav-right .nav-btn { flex: 1; }
       .nav-btn.side { height: 42px; font-size: 12px; padding: 0 6px; }
-      /* word list overlay: full screen (Import/Export live in its header) */
+      /* word list overlay: full screen (Save/Load live in its header)
+         row 1: [N/C/S | Formal/Informal]   row 2: [E→V | Classifier | Save | Load | ✕] */
       .wl-panel { width: 100vw; height: 100dvh; max-height: none; border-radius: 0; }
       .wl-header { gap: 6px; padding: calc(10px + env(safe-area-inset-top, 0px)) 12px 10px; }
-      .wl-col-headers, .word-row { grid-template-columns: 1fr 1fr auto 24px auto; }
+      .wl-header .seg-ctrl-sm .seg-seg { padding: 0 6px; font-size: 11px; height: 26px; }
+      .wl-header .wl-cls-btn { padding: 5px 8px; font-size: 11px; }
+      .close-wl-btn { width: 30px; height: 30px; font-size: 13px; }
+      .wl-col-headers, .word-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 24px auto; }
       .wl-col-headers { padding: 6px 12px 4px; }
       .wl-content { padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
-      .word-row-viet, .word-row-en { font-size: 15px; }
+      .word-row-viet, .word-row-en { font-size: 14px; }
     }
   </style>
 </head>
@@ -673,8 +677,8 @@
       </div>
       <button class="wl-cls-btn" id="wlDirBtn" onclick="toggleDirection()" style="margin-left:auto">V &#8594; E</button>
       <button class="wl-cls-btn" id="wlClsBtn" onclick="toggleClassifiersFromList()" style="margin-left:0">Classifier Off</button>
-      <button class="wl-cls-btn" onclick="exportBackup()" title="Export scores as CSV (key: E)">Export</button>
-      <button class="wl-cls-btn" onclick="importBackup()" title="Import scores from CSV (key: I)">Import</button>
+      <button class="wl-cls-btn" onclick="exportBackup()" title="Save scores as CSV (key: E)">Save</button>
+      <button class="wl-cls-btn" onclick="importBackup()" title="Load scores from CSV (key: I)">Load</button>
       <button class="close-wl-btn" onclick="hideWordList()">&#x2715;</button>
     </div>
 
