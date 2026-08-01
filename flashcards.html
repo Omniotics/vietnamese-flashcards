@@ -2414,20 +2414,23 @@ function renderCard(preserveReveal) {
 }
 
 function reveal() { document.getElementById("wordEn").classList.remove("hidden"); revealed = true; }
-function next() {
+// Step one card in either direction. Capture the word that WAS going to be shown
+// *before* refiltering: if the current card's score was just changed outside the
+// filter range, filterDeckInPlace() drops it and everything after shifts down one.
+// Advancing by index would then skip the neighbour, so instead we find the target
+// word by identity in the refreshed deck. Wrap-around is handled by the modulo on
+// the pre-filter deck (e.g. dropping the last card lands the target on the first).
+function step(dir) {
   if (!deck.length) return;
+  const targetWord = deck[(deckPos + dir + deck.length) % deck.length];
   filterDeckInPlace();
   if (!deck.length) { renderCard(); return; }
-  deckPos = (deckPos + 1) % deck.length;
+  const pos = deck.indexOf(targetWord);
+  deckPos = pos >= 0 ? pos : Math.min(deckPos, deck.length - 1);
   renderCard();
 }
-function prev() {
-  if (!deck.length) return;
-  filterDeckInPlace();
-  if (!deck.length) { renderCard(); return; }
-  deckPos = (deckPos - 1 + deck.length) % deck.length;
-  renderCard();
-}
+function next() { step(1); }
+function prev() { step(-1); }
 function revealOrNext() { if (!revealed) reveal(); else next(); }
 // Click left half of the card → previous word (no answer); right half → reveal/advance.
 // Taps on a word segment are ignored here — they lock/unlock the tooltip instead
