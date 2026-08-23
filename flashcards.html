@@ -125,6 +125,8 @@
       align-items: center;
       justify-content: center;
       padding: 24px 60px;
+      min-width: 0;      /* allow the grid cell to shrink instead of overflowing */
+      overflow: hidden;
     }
     .card-divider { background: rgba(255,255,255,0.055); width: 100%; }
 
@@ -135,6 +137,9 @@
       line-height: 1.15;
       text-align: center;
       color: var(--text);
+      max-width: 100%;         /* never wider than the card */
+      min-width: 0;
+      overflow-wrap: anywhere; /* long glosses wrap instead of overflowing off-center */
     }
     /* hidden answer: invisible AND untouchable — otherwise its segments still
        catch taps (ghost tooltips in E→V before reveal) instead of the card */
@@ -1091,7 +1096,7 @@ const words = [
   { viet:"gọi", en:"to call / order", defaultScore:4, segments:[{text:"gọi", meaning:"to call / order"}] },
   { viet:"hả", en:"(clarification particle)", defaultScore:4, segments:[{text:"hả", meaning:"(clarification particle)"}] },
   { viet:"Hà Nội", en:"Hanoi", defaultScore:4, segments:[{text:"Hà Nội", meaning:"Hanoi"}] },
-  { viet:"hạnh phúc", en:"happiness/fulfillment", defaultScore:4, segments:[{text:"hạnh phúc", meaning:"happiness/fulfillment"}] },
+  { viet:"hạnh phúc", en:"happiness / fulfillment", defaultScore:4, segments:[{text:"hạnh phúc", meaning:"happiness / fulfillment"}] },
   { viet:"hát", en:"sing", defaultScore:4, segments:[{text:"hát", meaning:"sing"}] },
   { viet:"hay", en:"good/interesting", defaultScore:4, segments:[{text:"hay", meaning:"good/interesting"}] },
   { viet:"hay là", en:"or", defaultScore:4, segments:[{text:"hay là", meaning:"or"}] },
