@@ -732,6 +732,7 @@ const CLS_NGOI  = { text:"ngôi",   meaning:"classifier for standalone structure
 const CLS_QUYEN = { text:"quyển",  meaning:"classifier for bound volumes" };
 const CLS_TO    = { text:"tờ",     meaning:"classifier for flat / sheet items" };
 const CLS_TAI   = { text:"tại",    meaning:"optional intensifier prefix for vì" };
+const CLS_CHAU  = { text:"châu",   meaning:"classifier for continents (châu Á = Asia)" };
 
 // ─── vocabulary ───────────────────────────────────────────────────────────────
 const words = [
@@ -2141,8 +2142,8 @@ const words = [
   { viet:"tốt hảo", en:"excellent", defaultScore:0, segments:[{text:"tốt", meaning:"good"}, {text:"hảo", meaning:"fine / good (Sino)"}] },
   { viet:"bằng lái", en:"driver's license", classifier:CLS_CAI, defaultScore:0, segments:[{text:"bằng", meaning:"certificate / license"}, {text:"lái", meaning:"to drive"}] },
   // capitalized continent forms (lowercase á/phi refined separately)
-  { viet:"Á", en:"Asia (continent)", defaultScore:0, segments:[{text:"Á", meaning:"Asia — as in châu Á"}] },
-  { viet:"Phi", en:"Africa (continent)", defaultScore:0, segments:[{text:"Phi", meaning:"Africa — as in châu Phi"}] },
+  { viet:"Á", en:"Asia (continent)", classifier:CLS_CHAU, defaultScore:0, segments:[{text:"Á", meaning:"Asia — continent takes châu: châu Á"}] },
+  { viet:"Phi", en:"Africa (continent)", classifier:CLS_CHAU, defaultScore:0, segments:[{text:"Phi", meaning:"Africa — continent takes châu: châu Phi"}] },
   // ── 260801 Duolingo batch (added at score 1) ──
   { viet:"lợi thế", en:"advantage", defaultScore:1, segments:[{text:"lợi", meaning:"benefit / advantage"}, {text:"thế", meaning:"position / leverage"}] },
   { viet:"may mắn", en:"lucky / luck", defaultScore:1, segments:[{text:"may", meaning:"luck / fortunate"}, {text:"mắn", meaning:"plentiful (bound intensifier)"}] },
