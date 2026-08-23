@@ -1030,7 +1030,7 @@ const words = [
   { viet:"dạy", en:"teach", defaultScore:4, segments:[{text:"dạy", meaning:"teach"}] },
   { viet:"đây", en:"here/this", defaultScore:4, segments:[{text:"đây", meaning:"here/this"}] },
   { viet:"dây thắt lưng", en:"belt", classifier:CLS_CAI, defaultScore:4, segments:[{text:"dây", meaning:"rope"}, {text:"thắt", meaning:"tie"}, {text:"lưng", meaning:"waist"}] },
-  { viet:"đến", en:"come", defaultScore:4, segments:[{text:"đến", meaning:"come"}] },
+  { viet:"đến", en:"come / arrive / until", defaultScore:4, segments:[{text:"đến", meaning:"to come / arrive; also 'until / up to' (đến khi = until)"}] },
   { viet:"đến từ", en:"is from", defaultScore:4, segments:[{text:"đến", meaning:"come"}, {text:"từ", meaning:"from"}] },
   { viet:"đeo", en:"wear", defaultScore:4, segments:[{text:"đeo", meaning:"wear"}] },
   { viet:"đều", en:"both / each / evenly", defaultScore:4, segments:[{text:"đều", meaning:"both / each / evenly, steadily"}] },
@@ -2288,7 +2288,7 @@ const words = [
   { viet:"tắm nắng", en:"to sunbathe", defaultScore:1, segments:[{text:"tắm", meaning:"to bathe"}, {text:"nắng", meaning:"sunshine — to sunbathe"}] },
   { viet:"dị ứng", en:"allergic", defaultScore:1, segments:[{text:"dị", meaning:"abnormal / different"}, {text:"ứng", meaning:"to respond — allergic"}] },
   { viet:"phản ứng", en:"to react / reaction", defaultScore:1, segments:[{text:"phản", meaning:"to counter / reverse"}, {text:"ứng", meaning:"to respond — to react"}] },
-  { viet:"cao hơn", en:"superior / higher", defaultScore:1, segments:[{text:"cao", meaning:"tall / high"}, {text:"hơn", meaning:"more — higher / superior"}] },
+  { viet:"cao hơn", en:"higher / taller / dominate", defaultScore:1, segments:[{text:"cao", meaning:"tall / high"}, {text:"hơn", meaning:"more (comparative) — cao hơn = higher / taller; figuratively to outdo / dominate"}] },
   { viet:"người khác", en:"other people", defaultScore:1, segments:[{text:"người", meaning:"person"}, {text:"khác", meaning:"other / different"}] },
   { viet:"ngang nhau", en:"equal to each other", defaultScore:1, segments:[{text:"ngang", meaning:"level / equal"}, {text:"nhau", meaning:"each other"}] },
   { viet:"ngạo mạn", en:"arrogant", defaultScore:1, segments:[{text:"ngạo", meaning:"haughty"}, {text:"mạn", meaning:"arrogant / disdainful"}] },
@@ -3342,7 +3342,7 @@ document.addEventListener("keydown", e => {
     case "v": case "V": showWordList(); break;
     case "e": case "E": exportBackup(); break;
     case "i": case "I": importBackup(); break;
-    case " ": case "Shift":
+    case " ": case "Shift": case "Enter":
       e.preventDefault();
       if (heldNavKeys.has(e.key)) return;
       heldNavKeys.add(e.key);
