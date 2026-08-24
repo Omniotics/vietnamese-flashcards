@@ -732,7 +732,6 @@ const CLS_NGOI  = { text:"ngôi",   meaning:"classifier for standalone structure
 const CLS_QUYEN = { text:"quyển",  meaning:"classifier for bound volumes" };
 const CLS_TO    = { text:"tờ",     meaning:"classifier for flat / sheet items" };
 const CLS_TAI   = { text:"tại",    meaning:"optional intensifier prefix for vì" };
-const CLS_CHAU  = { text:"châu",   meaning:"classifier for continents (châu Á = Asia)" };
 const CLS_HUONG = { text:"hướng",  meaning:"direction (classifier for compass points: hướng đông = East)" };
 
 // ─── vocabulary ───────────────────────────────────────────────────────────────
@@ -846,7 +845,7 @@ const words = [
   { viet:"mẫu giáo", en:"kindergarten", defaultScore:0, segments:[{text:"mẫu", meaning:"model"}, {text:"giáo", meaning:"instruct"}] },
   { viet:"mì ăn liền", en:"instant noodles", defaultScore:0, segments:[{text:"mì ăn liền", meaning:"instant noodles"}] },
   { viet:"nấm", en:"mushroom", defaultScore:0, segments:[{text:"nấm", meaning:"mushroom"}] },
-  { viet:"nên", en:"so", defaultScore:0, segments:[{text:"nên", meaning:"so"}] },
+  { viet:"nên", en:"should / so", defaultScore:0, segments:[{text:"nên", meaning:"should (nên + verb); so / therefore"}] },
   { viet:"ngắn", en:"short", defaultScore:0, segments:[{text:"ngắn", meaning:"short"}] },
   { viet:"nghiêm túc", en:"serious", defaultScore:0, segments:[{text:"nghiêm", meaning:"strict"}, {text:"túc", meaning:"proper"}] },
   { viet:"phức tạp", en:"complex", defaultScore:0, segments:[{text:"phức", meaning:"tangled"}, {text:"tạp", meaning:"various"}] },
@@ -1818,7 +1817,6 @@ const words = [
   { viet:"đảo", en:"island", defaultScore:0, segments:[{text:"đảo", meaning:"island"}] },
   { viet:"la bàn", en:"compass", defaultScore:0, segments:[{text:"la bàn", meaning:"compass"}] },
   { viet:"châu", en:"continent", defaultScore:0, segments:[{text:"châu", meaning:"continent"}] },
-  { viet:"nam cực", en:"Antarctic", defaultScore:0, segments:[{text:"nam cực", meaning:"Antarctic"}] },
   { viet:"âu", en:"Europe", defaultScore:0, segments:[{text:"âu", meaning:"Europe"}] },
   { viet:"phía trước", en:"in front of / ahead", defaultScore:0, segments:[{text:"phía trước", meaning:"in front of / ahead"}] },
   { viet:"trước khi", en:"before", defaultScore:0, segments:[{text:"trước khi", meaning:"before"}] },
@@ -1859,9 +1857,12 @@ const words = [
   { viet:"quốc tịch", en:"nationality / citizenship", defaultScore:0, segments:[{text:"quốc tịch", meaning:"nationality / citizenship"}] },
   { viet:"ngôn ngữ", en:"language", defaultScore:0, segments:[{text:"ngôn ngữ", meaning:"language"}] },
   { viet:"quốc gia", en:"country", informal:"nước", defaultScore:0, segments:[{text:"quốc", meaning:"nation / country (Sino)"}, {text:"gia", meaning:"household → together: state / nation. Formal; everyday word is nước"}] },
-  { viet:"châu Á", en:"Asia", defaultScore:0, segments:[{text:"châu Á", meaning:"Asia"}] },
-  { viet:"châu Âu", en:"Europe", defaultScore:0, segments:[{text:"châu Âu", meaning:"Europe"}] },
-  { viet:"châu Phi", en:"Africa", defaultScore:0, segments:[{text:"châu Phi", meaning:"Africa"}] },
+  { viet:"châu Á", en:"Asia", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Á", meaning:"Asia"}] },
+  { viet:"châu Âu", en:"Europe", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Âu", meaning:"Europe"}] },
+  { viet:"châu Phi", en:"Africa", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Phi", meaning:"Africa"}] },
+  { viet:"châu Nam Cực", en:"Antarctica", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Nam", meaning:"south"}, {text:"Cực", meaning:"pole — Nam Cực = South Pole"}] },
+  { viet:"Bắc Mỹ", en:"North America", defaultScore:0, segments:[{text:"Bắc", meaning:"north"}, {text:"Mỹ", meaning:"America"}] },
+  { viet:"Nam Mỹ", en:"South America", defaultScore:0, segments:[{text:"Nam", meaning:"south"}, {text:"Mỹ", meaning:"America"}] },
   { viet:"Colombia", en:"Colombia", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Colombia", meaning:"Colombia"}] },
   { viet:"Ecuador", en:"Ecuador", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Ecuador", meaning:"Ecuador"}] },
   { viet:"Nepal", en:"Nepal", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Nepal", meaning:"Nepal"}] },
@@ -2143,10 +2144,6 @@ const words = [
   { viet:"hảo tâm", en:"kind heart / benevolence", defaultScore:0, segments:[{text:"hảo", meaning:"good / kind"}, {text:"tâm", meaning:"heart"}] },
   { viet:"tốt hảo", en:"excellent", defaultScore:0, segments:[{text:"tốt", meaning:"good"}, {text:"hảo", meaning:"fine / good (Sino)"}] },
   { viet:"bằng lái", en:"driver's license", classifier:CLS_CAI, defaultScore:0, segments:[{text:"bằng", meaning:"certificate / license"}, {text:"lái", meaning:"to drive"}] },
-  // capitalized continent forms (lowercase á/phi refined separately)
-  { viet:"Á", en:"Asia (continent)", classifier:CLS_CHAU, defaultScore:0, segments:[{text:"Á", meaning:"Asia — continent takes châu: châu Á"}] },
-  { viet:"Phi", en:"Africa (continent)", classifier:CLS_CHAU, defaultScore:0, segments:[{text:"Phi", meaning:"Africa — continent takes châu: châu Phi"}] },
-  { viet:"Âu", en:"Europe (continent)", classifier:CLS_CHAU, defaultScore:0, segments:[{text:"Âu", meaning:"Europe — continent takes châu: châu Âu"}] },
   // ── 260801 Duolingo batch (added at score 1) ──
   { viet:"lợi thế", en:"advantage", defaultScore:1, segments:[{text:"lợi", meaning:"benefit / advantage"}, {text:"thế", meaning:"position / leverage"}] },
   { viet:"may mắn", en:"lucky / luck", defaultScore:1, segments:[{text:"may", meaning:"luck / fortunate"}, {text:"mắn", meaning:"plentiful (bound intensifier)"}] },
