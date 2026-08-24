@@ -734,6 +734,7 @@ const CLS_TO    = { text:"tờ",     meaning:"classifier for flat / sheet items"
 const CLS_TAI   = { text:"tại",    meaning:"optional intensifier prefix for vì" };
 const CLS_HUONG = { text:"hướng",  meaning:"direction (classifier for compass points: hướng đông = East)" };
 const CLS_BUC   = { text:"bức",    meaning:"classifier for flat things (photos, paintings, letters)" };
+const CLS_BO    = { text:"bộ",     meaning:"classifier for films, series, sets, suits" };
 
 // ─── vocabulary ───────────────────────────────────────────────────────────────
 const words = [
@@ -1404,7 +1405,7 @@ const words = [
   { viet:"xin lỗi", en:"sorry", defaultScore:4, segments:[{text:"xin", meaning:"please"}, {text:"lỗi", meaning:"fault"}] },
   { viet:"xuân", en:"spring", classifier:CLS_MUA, defaultScore:4, segments:[{text:"xuân", meaning:"spring"}] },
   { viet:"Ý", en:"Italy", classifier:CLS_NUOC, defaultScore:4, segments:[{text:"Ý", meaning:"Italy"}] },
-  { viet:"yêu", en:"love", defaultScore:4, segments:[{text:"yêu", meaning:"love"}] },
+  { viet:"yêu", en:"to love", defaultScore:4, segments:[{text:"yêu", meaning:"to love (verb) — anh yêu em = I love you"}] },
   { viet:"yêu thích", en:"favorite", defaultScore:4, segments:[{text:"yêu", meaning:"love"}, {text:"thích", meaning:"like"}] },
   { viet:"siêu thị", en:"supermarket", defaultScore:4, segments:[{text:"siêu thị", meaning:"supermarket"}] },
   { viet:"chung cư", en:"apartment building", defaultScore:4, segments:[{text:"chung cư", meaning:"apartment building"}] },
@@ -1445,7 +1446,7 @@ const words = [
   { viet:"còn tùy", en:"it depends", defaultScore:0, segments:[{text:"còn tùy", meaning:"it depends"}] },
   { viet:"cũng tùy", en:"it depends", defaultScore:0, segments:[{text:"cũng tùy", meaning:"it depends"}] },
   { viet:"cuối tuần", en:"weekend", defaultScore:0, segments:[{text:"cuối tuần", meaning:"weekend"}] },
-  { viet:"tình yêu", en:"love", defaultScore:0, segments:[{text:"tình yêu", meaning:"love"}] },
+  { viet:"tình yêu", en:"love (the feeling)", defaultScore:0, segments:[{text:"tình", meaning:"feeling / sentiment"}, {text:"yêu", meaning:"love — tình yêu = love as a noun (esp. romantic)"}] },
   { viet:"sét đánh", en:"lightning strike", defaultScore:0, segments:[{text:"sét đánh", meaning:"lightning strike"}] },
   { viet:"đầu tiên", en:"first", defaultScore:0, segments:[{text:"đầu tiên", meaning:"first"}] },
   { viet:"hợp đồng", en:"contract", defaultScore:0, segments:[{text:"hợp đồng", meaning:"contract"}] },
@@ -1725,7 +1726,7 @@ const words = [
   // ── added 2026-06-30 (batch 3: score 5) ──
   { viet:"con người", en:"human", defaultScore:5, segments:[{text:"con người", meaning:"human"}] },
   { viet:"á", en:"ah! / ouch! (surprise or pain)", defaultScore:5, segments:[{text:"á", meaning:"exclamation of surprise or pain. (Asia is capitalized: Á / châu Á)"}] },
-  { viet:"phim", en:"movie", defaultScore:5, segments:[{text:"phim", meaning:"movie"}] },
+  { viet:"phim", en:"movie / film", classifier:CLS_BO, defaultScore:5, segments:[{text:"phim", meaning:"film / movie (the medium — xem phim = watch movies)"}] },
   { viet:"xinh", en:"pretty", defaultScore:5, segments:[{text:"xinh", meaning:"pretty"}] },
   { viet:"a lô", en:"hello (on the phone)", defaultScore:5, segments:[{text:"a lô", meaning:"hello (on the phone)"}] },
   { viet:"nghĩa", en:"meaning", defaultScore:5, segments:[{text:"nghĩa", meaning:"meaning"}] },
@@ -2436,7 +2437,6 @@ const words = [
   { viet:"trừ", en:"except / to subtract", defaultScore:1, segments:[{text:"trừ", meaning:"except; to subtract"}] },
   { viet:"dịp", en:"occasion", defaultScore:1, segments:[{text:"dịp", meaning:"occasion"}] },
   { viet:"nghỉ lễ", en:"holiday / public-holiday break", defaultScore:1, segments:[{text:"nghỉ", meaning:"to take off"}, {text:"lễ", meaning:"holiday / ceremony — holiday break"}] },
-  { viet:"bộ phim", en:"movie / film", defaultScore:1, segments:[{text:"bộ", meaning:"(classifier for films/sets)"}, {text:"phim", meaning:"film — a movie"}] },
   { viet:"lấy bối cảnh", en:"to be set in (a place)", defaultScore:1, segments:[{text:"lấy", meaning:"to take"}, {text:"bối cảnh", meaning:"setting / backdrop — to be set in"}] },
   { viet:"đũa", en:"chopsticks", defaultScore:1, segments:[{text:"đũa", meaning:"chopsticks"}] },
   { viet:"vòi sen", en:"shower (head)", classifier:CLS_CAI, defaultScore:1, segments:[{text:"vòi", meaning:"spout / tap"}, {text:"sen", meaning:"lotus — showerhead"}] },
