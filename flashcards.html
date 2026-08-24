@@ -733,6 +733,7 @@ const CLS_QUYEN = { text:"quyển",  meaning:"classifier for bound volumes" };
 const CLS_TO    = { text:"tờ",     meaning:"classifier for flat / sheet items" };
 const CLS_TAI   = { text:"tại",    meaning:"optional intensifier prefix for vì" };
 const CLS_CHAU  = { text:"châu",   meaning:"classifier for continents (châu Á = Asia)" };
+const CLS_HUONG = { text:"hướng",  meaning:"direction (classifier for compass points: hướng đông = East)" };
 
 // ─── vocabulary ───────────────────────────────────────────────────────────────
 const words = [
@@ -1058,7 +1059,8 @@ const words = [
   { viet:"đối diện với", en:"opposite", defaultScore:4, segments:[{text:"đối", meaning:"confront"}, {text:"diện", meaning:"surface"}, {text:"với", meaning:"with"}] },
   { viet:"đội mũ", en:"wear hat", defaultScore:4, segments:[{text:"đội", meaning:"team/headpiece"}, {text:"mũ", meaning:"hat"}] },
   { viet:"đôi tất", en:"socks", south:"đôi vớ", defaultScore:4, segments:[{text:"đôi", meaning:"pair"}, {text:"tất", meaning:"socks"}], south_segments:[{text:"đôi", meaning:"pair"}, {text:"vớ", meaning:"socks"}] },
-  { viet:"đông", en:"winter / East / crowded", classifier:CLS_MUA, defaultScore:4, segments:[{text:"đông", meaning:"winter / East / crowded"}] },
+  { viet:"đông", en:"winter", classifier:CLS_MUA, defaultScore:4, segments:[{text:"đông", meaning:"winter (mùa đông = the winter season)"}] },
+  { viet:"đông", en:"East", classifier:CLS_HUONG, defaultScore:4, segments:[{text:"đông", meaning:"east — compass direction (hướng đông = the East)"}] },
   { viet:"đồng", en:"dong", defaultScore:4, segments:[{text:"đồng", meaning:"dong"}] },
   { viet:"đu đủ", en:"papaya", classifier:CLS_QUA, defaultScore:4, segments:[{text:"đu đủ", meaning:"papaya"}] },
   { viet:"đứa con", en:"child", defaultScore:4, segments:[{text:"đứa", meaning:"youthful"}, {text:"con", meaning:"precious/alive/offspring"}] },
