@@ -733,6 +733,7 @@ const CLS_QUYEN = { text:"quyển",  meaning:"classifier for bound volumes" };
 const CLS_TO    = { text:"tờ",     meaning:"classifier for flat / sheet items" };
 const CLS_TAI   = { text:"tại",    meaning:"optional intensifier prefix for vì" };
 const CLS_HUONG = { text:"hướng",  meaning:"direction (classifier for compass points: hướng đông = East)" };
+const CLS_BUC   = { text:"bức",    meaning:"classifier for flat things (photos, paintings, letters)" };
 
 // ─── vocabulary ───────────────────────────────────────────────────────────────
 const words = [
@@ -1037,7 +1038,7 @@ const words = [
   { viet:"đều", en:"both / each / evenly", defaultScore:4, segments:[{text:"đều", meaning:"both / each / evenly, steadily"}] },
   { viet:"đi", en:"go/move", defaultScore:4, segments:[{text:"đi", meaning:"go/move"}] },
   { viet:"đi bộ", en:"walk", defaultScore:4, segments:[{text:"đi", meaning:"go"}, {text:"bộ", meaning:"foot"}] },
-  { viet:"đi chơi", en:"party", defaultScore:4, segments:[{text:"đi", meaning:"go"}, {text:"chơi", meaning:"play"}] },
+  { viet:"đi chơi", en:"go out (for fun)", defaultScore:4, segments:[{text:"đi", meaning:"go"}, {text:"chơi", meaning:"play / hang out — đi chơi = go out, hang out (general, not just party)"}] },
   { viet:"đi du lịch", en:"travel", defaultScore:4, segments:[{text:"đi", meaning:"go"}, {text:"du", meaning:"journey"}, {text:"lịch", meaning:"schedule"}] },
   { viet:"đi giày", en:"wear shoes", defaultScore:4, segments:[{text:"đi", meaning:"go"}, {text:"giày", meaning:"shoes"}] },
   { viet:"đi tất", en:"wear socks", south:"mang vớ", defaultScore:4, segments:[{text:"đi", meaning:"wear"}, {text:"tất", meaning:"socks"}], south_segments:[{text:"mang", meaning:"wear"}, {text:"vớ", meaning:"socks"}] },
@@ -1863,6 +1864,8 @@ const words = [
   { viet:"châu Nam Cực", en:"Antarctica", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Nam", meaning:"south"}, {text:"Cực", meaning:"pole — Nam Cực = South Pole"}] },
   { viet:"Bắc Mỹ", en:"North America", defaultScore:0, segments:[{text:"Bắc", meaning:"north"}, {text:"Mỹ", meaning:"America"}] },
   { viet:"Nam Mỹ", en:"South America", defaultScore:0, segments:[{text:"Nam", meaning:"south"}, {text:"Mỹ", meaning:"America"}] },
+  { viet:"châu Mỹ", en:"Americas", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Mỹ", meaning:"America(s)"}] },
+  { viet:"châu Đại Dương", en:"Oceania", defaultScore:0, segments:[{text:"châu", meaning:"continent"}, {text:"Đại", meaning:"great"}, {text:"Dương", meaning:"ocean — Đại Dương = the great ocean, i.e. Oceania"}] },
   { viet:"Colombia", en:"Colombia", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Colombia", meaning:"Colombia"}] },
   { viet:"Ecuador", en:"Ecuador", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Ecuador", meaning:"Ecuador"}] },
   { viet:"Nepal", en:"Nepal", classifier:CLS_NUOC, defaultScore:0, segments:[{text:"Nepal", meaning:"Nepal"}] },
@@ -2193,7 +2196,7 @@ const words = [
   { viet:"thường xuyên", en:"often / frequently", defaultScore:1, segments:[{text:"thường", meaning:"usual / often"}, {text:"xuyên", meaning:"through / continuous"}] },
   { viet:"kính", en:"glasses", classifier:CLS_CAI, defaultScore:1, segments:[{text:"kính", meaning:"glasses / eyeglasses (also: to respect, as in kính trọng)"}] },
   { viet:"kính mát", en:"sunglasses", classifier:CLS_CAI, defaultScore:1, segments:[{text:"kính", meaning:"glasses"}, {text:"mát", meaning:"cool / shady"}] },
-  { viet:"ảnh", en:"photo", defaultScore:1, segments:[{text:"ảnh", meaning:"photo / image"}] },
+  { viet:"ảnh", en:"photo", classifier:CLS_BUC, defaultScore:1, segments:[{text:"ảnh", meaning:"photo / image"}] },
   { viet:"cờ", en:"flag", defaultScore:1, segments:[{text:"cờ", meaning:"flag"}] },
   { viet:"bột", en:"powder", defaultScore:1, segments:[{text:"bột", meaning:"powder / flour"}] },
   { viet:"búa", en:"hammer", classifier:CLS_CAI, defaultScore:1, segments:[{text:"búa", meaning:"hammer"}] },
@@ -2415,7 +2418,6 @@ const words = [
   { viet:"tiết kiệm", en:"to save / be thrifty", defaultScore:1, segments:[{text:"tiết", meaning:"to economize"}, {text:"kiệm", meaning:"frugal — to save / be thrifty"}] },
   { viet:"trẻ", en:"young", defaultScore:1, segments:[{text:"trẻ", meaning:"young"}] },
   { viet:"logo", en:"logo", defaultScore:1, segments:[{text:"logo", meaning:"logo (loanword)"}] },
-  { viet:"bức ảnh", en:"photo", defaultScore:1, segments:[{text:"bức", meaning:"(classifier for flat images)"}, {text:"ảnh", meaning:"photo / image"}] },
   { viet:"gỗ", en:"wood", defaultScore:1, segments:[{text:"gỗ", meaning:"wood"}] },
   { viet:"đất nước", en:"country / nation", defaultScore:1, segments:[{text:"đất", meaning:"land"}, {text:"nước", meaning:"water / country — country / nation"}] },
   { viet:"đối chiếu", en:"to compare / cross-check", defaultScore:1, segments:[{text:"đối", meaning:"to match / face"}, {text:"chiếu", meaning:"to shine / project — to cross-check"}] },
@@ -2515,6 +2517,7 @@ const words = [
   { viet:"bún đậu", en:"vermicelli with tofu", defaultScore:1, segments:[{text:"bún", meaning:"rice vermicelli"}, {text:"đậu", meaning:"tofu / bean"}] },
   { viet:"bún chả", en:"vermicelli with grilled pork", defaultScore:1, segments:[{text:"bún", meaning:"rice vermicelli"}, {text:"chả", meaning:"grilled pork patty"}] },
   { viet:"bún thịt nướng", en:"vermicelli with grilled meat", defaultScore:1, segments:[{text:"bún", meaning:"rice vermicelli"}, {text:"thịt", meaning:"meat"}, {text:"nướng", meaning:"grilled"}] },
+  { viet:"nướng", en:"to grill", defaultScore:0, segments:[{text:"nướng", meaning:"to grill / roast / bake (over fire)"}] },
   { viet:"đều sống", en:"all living / all alive", defaultScore:1, segments:[{text:"đều", meaning:"all / evenly"}, {text:"sống", meaning:"to live — all living"}] },
   { viet:"căn phòng", en:"a room", defaultScore:1, segments:[{text:"căn", meaning:"(classifier for rooms)"}, {text:"phòng", meaning:"room — a room"}] },
   { viet:"lựa chọn", en:"choice / option", defaultScore:1, segments:[{text:"lựa", meaning:"to select"}, {text:"chọn", meaning:"to choose — choice / option"}] },
