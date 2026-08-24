@@ -1059,8 +1059,8 @@ const words = [
   { viet:"đối diện với", en:"opposite", defaultScore:4, segments:[{text:"đối", meaning:"confront"}, {text:"diện", meaning:"surface"}, {text:"với", meaning:"with"}] },
   { viet:"đội mũ", en:"wear hat", defaultScore:4, segments:[{text:"đội", meaning:"team/headpiece"}, {text:"mũ", meaning:"hat"}] },
   { viet:"đôi tất", en:"socks", south:"đôi vớ", defaultScore:4, segments:[{text:"đôi", meaning:"pair"}, {text:"tất", meaning:"socks"}], south_segments:[{text:"đôi", meaning:"pair"}, {text:"vớ", meaning:"socks"}] },
-  { viet:"đông", en:"winter", classifier:CLS_MUA, defaultScore:4, segments:[{text:"đông", meaning:"winter (mùa đông = the winter season)"}] },
-  { viet:"đông", en:"East", classifier:CLS_HUONG, defaultScore:4, segments:[{text:"đông", meaning:"east — compass direction (hướng đông = the East)"}] },
+  { viet:"đông", key:"mùa đông", en:"winter", classifier:CLS_MUA, defaultScore:4, segments:[{text:"đông", meaning:"winter (mùa đông = the winter season)"}] },
+  { viet:"đông", key:"hướng đông", en:"East", classifier:CLS_HUONG, defaultScore:4, segments:[{text:"đông", meaning:"east — compass direction (hướng đông = the East)"}] },
   { viet:"đồng", en:"dong", defaultScore:4, segments:[{text:"đồng", meaning:"dong"}] },
   { viet:"đu đủ", en:"papaya", classifier:CLS_QUA, defaultScore:4, segments:[{text:"đu đủ", meaning:"papaya"}] },
   { viet:"đứa con", en:"child", defaultScore:4, segments:[{text:"đứa", meaning:"youthful"}, {text:"con", meaning:"precious/alive/offspring"}] },
@@ -2556,12 +2556,18 @@ let zoomIdx = 3;
 // A word is "linked" if it has no classifier, OR has a classifier but is not in unlinkedWords.
 // Linked  → always use base key (same score both modes)
 // Unlinked → use _c key when classifiersOn
-function isLinked(w) { return !w.classifier || !unlinkedWords.has(w.viet); }
+// A card's SCORE IDENTITY is `key || viet`. The optional `key` lets two cards
+// share a display `viet` (e.g. "đông") yet track SEPARATE scores when the
+// classifier changes the meaning (mùa đông = winter vs hướng đông = East).
+// Classifier Off only hides the classifier's display — it never merges scores.
+function idOf(w) { return w.key || w.viet; }
+function isLinked(w) { return !w.classifier || !unlinkedWords.has(idOf(w)); }
 
 function scoreKey(w, forceClassifier) {
   const useClassifier = forceClassifier !== undefined ? forceClassifier : classifiersOn;
-  const base = reverseMode ? w.viet + "_r"  : w.viet;
-  const cls  = reverseMode ? w.viet + "_rc" : w.viet + "_c";
+  const id   = idOf(w);
+  const base = reverseMode ? id + "_r"  : id;
+  const cls  = reverseMode ? id + "_rc" : id + "_c";
   if (!w.classifier) return base;   // no classifier → always base
   if (isLinked(w))   return base;   // linked        → always base
   return useClassifier ? cls : base; // unlinked     → mode-specific
@@ -2583,10 +2589,11 @@ function setScore(v) {
 function loadAll() {
   try { const s = localStorage.getItem("viet-v1-scores");  if (s) scores = JSON.parse(s); } catch(e) {}
   words.forEach(w => {
-    if (scores[w.viet]         === undefined) scores[w.viet]         = w.defaultScore ?? 0;
-    if (scores[w.viet + "_c"]  === undefined) scores[w.viet + "_c"]  = w.defaultScore ?? 0;
-    if (scores[w.viet + "_r"]  === undefined) scores[w.viet + "_r"]  = w.defaultScore ?? 0;
-    if (scores[w.viet + "_rc"] === undefined) scores[w.viet + "_rc"] = w.defaultScore ?? 0;
+    const k = idOf(w);
+    if (scores[k]         === undefined) scores[k]         = w.defaultScore ?? 0;
+    if (scores[k + "_c"]  === undefined) scores[k + "_c"]  = w.defaultScore ?? 0;
+    if (scores[k + "_r"]  === undefined) scores[k + "_r"]  = w.defaultScore ?? 0;
+    if (scores[k + "_rc"] === undefined) scores[k + "_rc"] = w.defaultScore ?? 0;
   });
   try { const u = localStorage.getItem("viet-v1-unlinked"); if (u) unlinkedWords = new Set(JSON.parse(u)); } catch(e) {}
   try {
@@ -2713,12 +2720,13 @@ function renderLinkBtn() {
 //         direction, so the now-inert _c/_rc keys are simply ignored.
 function applyLinkToggle(w) {
   if (!w.classifier) return false;
+  const k = idOf(w);
   if (isLinked(w)) {
-    scores[w.viet + "_c"]  = scores[w.viet]        ?? 0;
-    scores[w.viet + "_rc"] = scores[w.viet + "_r"] ?? 0;
-    unlinkedWords.add(w.viet);
+    scores[k + "_c"]  = scores[k]        ?? 0;
+    scores[k + "_rc"] = scores[k + "_r"] ?? 0;
+    unlinkedWords.add(k);
   } else {
-    unlinkedWords.delete(w.viet);
+    unlinkedWords.delete(k);
   }
   saveScores();
   saveUnlinked();
@@ -3164,12 +3172,13 @@ function exportBackup() {
     const cls  = w.classifier ? w.classifier.text : "";
     const segs = w.segments.map(s => s.meaning).join(" | ");
     const def  = w.defaultScore ?? 0;
-    const unl  = unlinkedWords.has(w.viet);
-    const ve   = scores[w.viet]         ?? def;
-    const vc   = scores[w.viet + "_c"]  ?? def;
-    const ev   = scores[w.viet + "_r"]  ?? def;
-    const evc  = scores[w.viet + "_rc"] ?? def;
-    rows.push(`${q(w.viet)},${q(w.en)},${cls},${q(segs)},${ve},${unl?vc:ve},${ev},${unl?evc:ev},${unl?1:0}`);
+    const k    = idOf(w);
+    const unl  = unlinkedWords.has(k);
+    const ve   = scores[k]         ?? def;
+    const vc   = scores[k + "_c"]  ?? def;
+    const ev   = scores[k + "_r"]  ?? def;
+    const evc  = scores[k + "_rc"] ?? def;
+    rows.push(`${q(k)},${q(w.en)},${cls},${q(segs)},${ve},${unl?vc:ve},${ev},${unl?evc:ev},${unl?1:0}`);
   });
   const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
   const a = document.createElement("a");
