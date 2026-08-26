@@ -433,7 +433,7 @@
     /* column headers */
     .wl-col-headers {
       display: grid;
-      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 28px auto;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto;
       gap: 8px;
       padding: 8px 20px 6px;
       font-size: 10px;
@@ -454,7 +454,7 @@
 
     .word-row {
       display: grid;
-      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 28px auto;
+      grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto;
       align-items: center;
       gap: 8px;
       padding: 6px 0 6px 4px;
@@ -593,7 +593,7 @@
       .wl-header .seg-ctrl-sm .seg-seg { padding: 0 6px; font-size: 11px; height: 26px; }
       .wl-header .wl-cls-btn { padding: 5px 8px; font-size: 11px; }
       .close-wl-btn { width: 30px; height: 30px; font-size: 13px; }
-      .wl-col-headers, .word-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto 24px auto; }
+      .wl-col-headers, .word-row { grid-template-columns: minmax(0,1fr) minmax(0,1fr) auto; }
       .wl-col-headers { padding: 6px 12px 4px; }
       .wl-content { padding: 4px 12px calc(16px + env(safe-area-inset-bottom, 0px)); }
       .word-row-viet, .word-row-en { font-size: 14px; }
@@ -663,9 +663,6 @@
       <div class="bat-cap" id="batCap"></div>
       <div class="bat-body" id="batBody"></div>
     </div>
-    <button class="link-btn" id="linkBtn" onclick="toggleLink()" tabindex="-1">
-      <!-- icon set by JS -->
-    </button>
   </div>
 </div>
 
@@ -692,9 +689,7 @@
     <div class="wl-col-headers">
       <span class="wl-col-hdr" id="hdrViet" onclick="clickSort('alpha-viet')">Vietnamese <span class="sort-arrow" id="sortVietArrow"></span></span>
       <span class="wl-col-hdr" id="hdrEn" onclick="clickSort('alpha-en')">English <span class="sort-arrow" id="sortEnArrow"></span></span>
-      <span class="wl-col-hdr wl-col-score" id="hdrScore" onclick="clickSort('score')" title="score without classifier">score w/o <span class="sort-arrow" id="sortScoreArrow">&#8595;</span></span>
-      <span></span>
-      <span class="wl-col-hdr wl-col-score" id="hdrScoreCls" onclick="clickSort('score-cls')" title="score with classifier">score w/ <span class="sort-arrow" id="sortCLSArrow"></span></span>
+      <span class="wl-col-hdr wl-col-score" id="hdrScore" onclick="clickSort('score')" title="score">score <span class="sort-arrow" id="sortScoreArrow">&#8595;</span></span>
     </div>
 
     <div class="wl-content" id="wlContent"></div>
@@ -2529,7 +2524,6 @@ const words = [
 
 // ─── state ────────────────────────────────────────────────────────────────────
 let scores        = {};
-let unlinkedWords = new Set();   // viet keys of words explicitly unlinked
 let classifiersOn = false;
 
 let deck     = [];
@@ -2545,34 +2539,27 @@ let reverseMode      = false;      // false = V→E, true = E→V
 
 // sort: primary key, per-key dirs, stable cached list (not re-sorted on cls toggle)
 let sortPrimary = 'score';
-let sortDirs    = { score:'desc', 'alpha-viet':'asc', 'alpha-en':'asc', 'score-cls':'desc' };
+let sortDirs    = { score:'desc', 'alpha-viet':'asc', 'alpha-en':'asc' };
 let cachedList  = [];   // stable word list used for rendering; only rebuilt on sort click
 
 const ZOOM_LEVELS = [0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3];
 let zoomIdx = 3;
 
 // ─── score helpers ────────────────────────────────────────────────────────────
-// A word is "linked" if it has no classifier, OR has a classifier but is not in unlinkedWords.
-// Linked  → always use base key (same score both modes)
-// Unlinked → use _c key when classifiersOn
+// Two score tracks per card: forward (V→E) and reverse (E→V). The classifier
+// toggle is display-only and never affects the score.
 // A card's SCORE IDENTITY is `key || viet`. The optional `key` lets two cards
 // share a display `viet` (e.g. "đông") yet track SEPARATE scores when the
 // classifier changes the meaning (mùa đông = winter vs hướng đông = East).
 // Classifier Off only hides the classifier's display — it never merges scores.
 function idOf(w) { return w.key || w.viet; }
-function isLinked(w) { return !w.classifier || !unlinkedWords.has(idOf(w)); }
 
-function scoreKey(w, forceClassifier) {
-  const useClassifier = forceClassifier !== undefined ? forceClassifier : classifiersOn;
-  const id   = idOf(w);
-  const base = reverseMode ? id + "_r"  : id;
-  const cls  = reverseMode ? id + "_rc" : id + "_c";
-  if (!w.classifier) return base;   // no classifier → always base
-  if (isLinked(w))   return base;   // linked        → always base
-  return useClassifier ? cls : base; // unlinked     → mode-specific
+function scoreKey(w) {
+  const id = idOf(w);
+  return reverseMode ? id + "_r" : id;
 }
 
-function scoreOf(w, forceClassifier) { return scores[scoreKey(w, forceClassifier)] ?? 0; }
+function scoreOf(w) { return scores[scoreKey(w)] ?? 0; }
 function currentScore()              { return scoreOf(words[deck[deckPos]]); }
 
 function setScore(v) {
@@ -2587,14 +2574,26 @@ function setScore(v) {
 // ─── persistence ──────────────────────────────────────────────────────────────
 function loadAll() {
   try { const s = localStorage.getItem("viet-v1-scores");  if (s) scores = JSON.parse(s); } catch(e) {}
+  // one-time migration: fold the old classifier tracks (_c/_rc) into the base
+  // by max, then drop them. Scores are now just forward (id) and reverse (id_r).
+  if (!localStorage.getItem("viet-v3-nocls")) {
+    for (const key of Object.keys(scores)) {
+      if (key.endsWith("_rc")) {
+        const base = key.slice(0, -3) + "_r";
+        scores[base] = Math.max(scores[base] ?? 0, scores[key] ?? 0); delete scores[key];
+      } else if (key.endsWith("_c")) {
+        const base = key.slice(0, -2);
+        scores[base] = Math.max(scores[base] ?? 0, scores[key] ?? 0); delete scores[key];
+      }
+    }
+    try { localStorage.setItem("viet-v3-nocls", "1"); } catch(e) {}
+    saveScores();
+  }
   words.forEach(w => {
     const k = idOf(w);
-    if (scores[k]         === undefined) scores[k]         = w.defaultScore ?? 0;
-    if (scores[k + "_c"]  === undefined) scores[k + "_c"]  = w.defaultScore ?? 0;
-    if (scores[k + "_r"]  === undefined) scores[k + "_r"]  = w.defaultScore ?? 0;
-    if (scores[k + "_rc"] === undefined) scores[k + "_rc"] = w.defaultScore ?? 0;
+    if (scores[k]        === undefined) scores[k]        = w.defaultScore ?? 0;
+    if (scores[k + "_r"] === undefined) scores[k + "_r"] = w.defaultScore ?? 0;
   });
-  try { const u = localStorage.getItem("viet-v1-unlinked"); if (u) unlinkedWords = new Set(JSON.parse(u)); } catch(e) {}
   try {
     const f2 = localStorage.getItem("viet-v2-filter");
     if (f2) { const {min,max} = JSON.parse(f2); scoreA = min; scoreB = max; }
@@ -2611,7 +2610,6 @@ function loadAll() {
 }
 
 function saveScores()   { try { localStorage.setItem("viet-v1-scores",   JSON.stringify(scores));                          } catch(e) {} }
-function saveUnlinked() { try { localStorage.setItem("viet-v1-unlinked", JSON.stringify([...unlinkedWords]));             } catch(e) {} }
 function saveFilter()   { try { localStorage.setItem("viet-v2-filter",   JSON.stringify({min:scoreA, max:scoreB}));       } catch(e) {} }
 
 // ─── deck ─────────────────────────────────────────────────────────────────────
@@ -2695,47 +2693,6 @@ function renderBattery() {
     cell.onclick = (e) => { e.stopPropagation(); setScore(currentScore() === ci ? 0 : ci); };
     body.appendChild(cell);
   }
-  renderLinkBtn();
-}
-
-// ─── link button ──────────────────────────────────────────────────────────────
-function renderLinkBtn() {
-  if (!deck.length) return;
-  const w   = words[deck[deckPos]];
-  const btn = document.getElementById("linkBtn");
-  if (!w.classifier) {
-    btn.innerHTML  = SVG_LINK;
-    btn.disabled   = true;
-    return;
-  }
-  btn.disabled = false;
-  btn.innerHTML = isLinked(w) ? SVG_LINK : SVG_UNLINK;
-}
-
-// Toggle a word's classifier link. Returns true if anything changed.
-// Unlink: give the classifier form its own score in BOTH directions (forward
-//         _c and reverse _rc), each seeded from its matching base so they start
-//         equal. Re-link: drop the overrides — base scores win again per
-//         direction, so the now-inert _c/_rc keys are simply ignored.
-function applyLinkToggle(w) {
-  if (!w.classifier) return false;
-  const k = idOf(w);
-  if (isLinked(w)) {
-    scores[k + "_c"]  = scores[k]        ?? 0;
-    scores[k + "_rc"] = scores[k + "_r"] ?? 0;
-    unlinkedWords.add(k);
-  } else {
-    unlinkedWords.delete(k);
-  }
-  saveScores();
-  saveUnlinked();
-  return true;
-}
-
-function toggleLink() {
-  if (!deck.length) return;
-  if (!applyLinkToggle(words[deck[deckPos]])) return;
-  renderBattery();
 }
 
 // ─── card ─────────────────────────────────────────────────────────────────────
@@ -3016,7 +2973,6 @@ function updateSortUI() {
     'alpha-viet': { hdrId:'hdrViet',    arrowId:'sortVietArrow',  isDesc: false },
     'alpha-en':   { hdrId:'hdrEn',      arrowId:'sortEnArrow',    isDesc: false },
     'score':      { hdrId:'hdrScore',   arrowId:'sortScoreArrow', isDesc: true  },
-    'score-cls':  { hdrId:'hdrScoreCls',arrowId:'sortCLSArrow',   isDesc: true  },
   };
   Object.entries(map).forEach(([key, {hdrId, arrowId, isDesc}]) => {
     const hdr   = document.getElementById(hdrId);
@@ -3035,8 +2991,7 @@ function updateSortUI() {
 
 function buildSortedList() {
   function cmpBy(a, b, key) {
-    if (key === 'score')      return scoreOf(a, false) - scoreOf(b, false);
-    if (key === 'score-cls')  return scoreOf(a, true)  - scoreOf(b, true);
+    if (key === 'score')      return scoreOf(a) - scoreOf(b);
     if (key === 'alpha-viet') {
       const va = (classifiersOn && a.classifier ? classifierText(a.classifier) + ' ' : '') + displayViet(a);
       const vb = (classifiersOn && b.classifier ? classifierText(b.classifier) + ' ' : '') + displayViet(b);
@@ -3055,7 +3010,7 @@ function buildSortedList() {
 function clickSort(key) {
   if (sortPrimary !== key) {
     sortPrimary = key;
-    sortDirs[key] = (key === 'score' || key === 'score-cls') ? 'desc' : 'asc';
+    sortDirs[key] = (key === 'score') ? 'desc' : 'asc';
   } else {
     const cur = sortDirs[key];
     sortDirs[key] = cur === 'desc' ? 'asc' : 'desc';
@@ -3067,50 +3022,39 @@ function clickSort(key) {
 
 // ─── word list ────────────────────────────────────────────────────────────────
 
-function setScoreForWordInList(w, isCls, v) {
+function setScoreForWordInList(w, v) {
   v = ((v % 6) + 6) % 6;
-  const key = scoreKey(w, isCls);
+  const key = scoreKey(w);
   scores[key] = v;
   saveScores();
   if (deck.length && words[deck[deckPos]] === w) renderBattery();
   renderWordListRows();
 }
 
-function toggleLinkForWord(w, e) {
-  e.stopPropagation();
-  if (!applyLinkToggle(w)) return;
-  if (deck.length && words[deck[deckPos]] === w) renderBattery();
-  renderWordListRows();
-}
-
-function makeMiniHBat(w, isCls) {
-  const disabled = isCls && !w.classifier;
-  const s   = scoreOf(w, isCls);
+function makeMiniHBat(w) {
+  const s   = scoreOf(w);
   const col = s > 0 ? batColor(s) : null;
 
   const wrap = document.createElement('div');
   wrap.className = 'mini-bat-h';
-  if (disabled) wrap.style.opacity = '0.25';
 
   const body = document.createElement('div');
   body.className = 'mini-bat-body-h';
-  body.style.borderColor = (col && !disabled) ? col.hi : 'rgba(255,255,255,0.14)';
+  body.style.borderColor = col ? col.hi : 'rgba(255,255,255,0.14)';
 
   for (let i = 1; i <= 5; i++) {
     const cell = document.createElement('div');
     const lit  = i <= s;
     const cls  = lit ? litClass(s) : '';
     cell.className = 'mini-bat-cell-h' + (cls ? ' ' + cls : '');
-    if (!disabled) {
-      const sv = i;
-      cell.onclick = (e) => { e.stopPropagation(); setScoreForWordInList(w, isCls, s === sv ? 0 : sv); };
-    }
+    const sv = i;
+    cell.onclick = (e) => { e.stopPropagation(); setScoreForWordInList(w, s === sv ? 0 : sv); };
     body.appendChild(cell);
   }
 
   const cap = document.createElement('div');
   cap.className = 'mini-bat-cap-h';
-  cap.style.background = (col && !disabled) ? col.hi : 'rgba(255,255,255,0.12)';
+  cap.style.background = col ? col.hi : 'rgba(255,255,255,0.12)';
 
   wrap.appendChild(body);
   wrap.appendChild(cap);
@@ -3132,17 +3076,9 @@ function renderWordListRows() {
     en.className   = 'word-row-en';
     en.textContent = w.en;
 
-    const linkBtn = document.createElement('button');
-    linkBtn.className = 'wl-link-btn';
-    linkBtn.innerHTML = isLinked(w) ? SVG_LINK : SVG_UNLINK;
-    if (!w.classifier) linkBtn.disabled = true;
-    else linkBtn.onclick = (e) => toggleLinkForWord(w, e);
-
     row.appendChild(viet);
     row.appendChild(en);
-    row.appendChild(makeMiniHBat(w, false));
-    row.appendChild(linkBtn);
-    row.appendChild(makeMiniHBat(w, true));
+    row.appendChild(makeMiniHBat(w));
 
     row.onclick = () => {
       const wordIdx = words.indexOf(w);
@@ -3166,23 +3102,20 @@ function renderWordListRows() {
 
 function exportBackup() {
   function q(s) { return `"${String(s).replace(/"/g, '""')}"` }
-  const rows = ["Vietnamese,English,Classifier,Segments (hover),V→E,V→E w/cls,E→V,E→V w/cls,unlinked"];
+  const rows = ["Vietnamese,English,Classifier,Segments (hover),V→E,E→V"];
   words.forEach(w => {
     const cls  = w.classifier ? w.classifier.text : "";
     const segs = w.segments.map(s => s.meaning).join(" | ");
     const def  = w.defaultScore ?? 0;
     const k    = idOf(w);
-    const unl  = unlinkedWords.has(k);
-    const ve   = scores[k]         ?? def;
-    const vc   = scores[k + "_c"]  ?? def;
-    const ev   = scores[k + "_r"]  ?? def;
-    const evc  = scores[k + "_rc"] ?? def;
-    rows.push(`${q(k)},${q(w.en)},${cls},${q(segs)},${ve},${unl?vc:ve},${ev},${unl?evc:ev},${unl?1:0}`);
+    const ve   = scores[k]        ?? def;
+    const ev   = scores[k + "_r"] ?? def;
+    rows.push(`${q(k)},${q(w.en)},${cls},${q(segs)},${ve},${ev}`);
   });
   const blob = new Blob([rows.join("\n")], { type: "text/csv;charset=utf-8;" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "vietnamese_backup.csv";
+  a.download = "viet_scores_2track.csv";
   a.click();
 }
 
@@ -3223,32 +3156,18 @@ function parseCSVLine(line) {
 function _applyCSVBackup(text) {
   const lines = text.split(/\r?\n/).filter(l => l.trim());
   if (lines.length < 2) return;
-  const header  = parseCSVLine(lines[0]);
-  const iVE     = header.findIndex(h => h.includes("V→E") && !h.includes("cls") && !h.includes("w/"));
-  const iVE_c   = header.findIndex(h => h.includes("V→E") && (h.includes("cls") || h.includes("w/")));
-  const iEV     = header.findIndex(h => h.includes("E→V") && !h.includes("cls") && !h.includes("w/"));
-  const iEV_c   = header.findIndex(h => h.includes("E→V") && (h.includes("cls") || h.includes("w/")));
-  const iUnlink = header.findIndex(h => h.includes("unlinked"));
-  const iBase   = iVE >= 0 ? iVE : 3;
-  const iCls    = iVE_c >= 0 ? iVE_c : 4;
-  const newUnlinked = new Set(unlinkedWords);
+  const header = parseCSVLine(lines[0]);
+  const iVE = header.findIndex(h => h.includes("V→E"));
+  const iEV = header.findIndex(h => h.includes("E→V"));
+  const iBase = iVE >= 0 ? iVE : 4;
+  const iRev  = iEV >= 0 ? iEV : 5;
   lines.slice(1).forEach(line => {
     const fields = parseCSVLine(line);
     const viet = fields[0]; if (!viet) return;
-    const ve   = parseInt(fields[iBase]) || 0;
-    const vc   = parseInt(fields[iCls])  || 0;
-    const ev   = iEV   >= 0 ? (parseInt(fields[iEV])   || 0) : ve;
-    const evc  = iEV_c >= 0 ? (parseInt(fields[iEV_c]) || 0) : vc;
-    const unlk = iUnlink >= 0 ? fields[iUnlink] === "1" : ve !== vc;
-    scores[viet]         = ve;
-    scores[viet + "_c"]  = vc;
-    scores[viet + "_r"]  = ev;
-    scores[viet + "_rc"] = evc;
-    if (unlk) newUnlinked.add(viet); else newUnlinked.delete(viet);
+    scores[viet]        = parseInt(fields[iBase]) || 0;
+    scores[viet + "_r"] = parseInt(fields[iRev])  || 0;
   });
-  unlinkedWords = newUnlinked;
   saveScores();
-  saveUnlinked();
   _finishImport("Scores imported!");
 }
 
@@ -3348,7 +3267,6 @@ document.addEventListener("keydown", e => {
 
   switch (e.key) {
     case "c": case "C": toggleClassifiers(); break;
-    case "l": case "L": toggleLink(); break;
     case "v": case "V": showWordList(); break;
     case "e": case "E": exportBackup(); break;
     case "i": case "I": importBackup(); break;
